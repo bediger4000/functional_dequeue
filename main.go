@@ -14,5 +14,20 @@ func main() {
 		q = fdq.NewDllist()
 	}
 
-	fmt.Printf("%T %+v\n", q, q)
+	var data any
+
+	for idx := 2; idx < len(os.Args); {
+
+		thing := os.Args[idx]
+
+		switch thing {
+		case "popL":
+			idx++
+			data, q = q.PopLeft()
+			fmt.Printf("pop left: %v\n", data)
+		case "pushL":
+			q = q.PushLeft(os.Args[idx+1])
+			idx += 2
+		}
+	}
 }
