@@ -19,11 +19,10 @@ type ListQueue struct {
 
 var _ Dequeue = (*ListQueue)(nil)
 
-func NewDllist() Dequeue {
-	return &ListQueue{}
-}
-
 func (l *ListQueue) PushLeft(datum any) Dequeue {
+	if l == nil {
+		l = &ListQueue{}
+	}
 	node := &listNode{data: datum}
 	if l.head == nil {
 		l.head = node
@@ -36,6 +35,9 @@ func (l *ListQueue) PushLeft(datum any) Dequeue {
 	return l
 }
 func (l *ListQueue) PopLeft() (any, Dequeue) {
+	if l == nil {
+		l = &ListQueue{}
+	}
 	if l.head == nil {
 		return nil, l
 	}
@@ -50,6 +52,9 @@ func (l *ListQueue) PopLeft() (any, Dequeue) {
 }
 
 func (l *ListQueue) PushRight(datum any) Dequeue {
+	if l == nil {
+		l = &ListQueue{}
+	}
 	node := &listNode{data: datum}
 	if l.tail == nil {
 		l.head = node
@@ -63,6 +68,9 @@ func (l *ListQueue) PushRight(datum any) Dequeue {
 }
 
 func (l *ListQueue) PopRight() (any, Dequeue) {
+	if l == nil {
+		l = &ListQueue{}
+	}
 	if l.tail == nil {
 		return nil, l
 	}
@@ -79,6 +87,9 @@ func (l *ListQueue) PopRight() (any, Dequeue) {
 }
 
 func (l *ListQueue) Print(fout *os.File) {
+	if l == nil {
+		l = &ListQueue{}
+	}
 	fmt.Fprintf(fout, "Left to right: ")
 	for p := l.head; p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
