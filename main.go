@@ -12,6 +12,8 @@ func main() {
 	switch os.Args[1] {
 	case "dllist":
 		q = (*fdq.ListQueue)(nil)
+	case "twostack":
+		q = (*fdq.TwoStack)(nil)
 	}
 
 	var data any
