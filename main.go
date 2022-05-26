@@ -11,7 +11,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "dllist":
-		q = fdq.NewDllist()
+		q = (*fdq.ListQueue)(nil)
 	}
 
 	var data any
