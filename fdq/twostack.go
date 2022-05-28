@@ -32,17 +32,17 @@ func (l *TwoStack) PopLeft() (any, Dequeue) {
 		l = &TwoStack{}
 	}
 	if l.head == nil {
-		for node := l.head; node != nil; node = l.head {
-			l.head = l.head.next
-			node.next = l.tail
-			l.tail = node
+		for node := l.tail; node != nil; node = l.tail {
+			l.tail = l.tail.next
+			node.next = l.head
+			l.head = node
 		}
 	}
 	if l.head == nil {
 		return nil, l
 	}
-	node := l.tail
-	l.tail = l.tail.next
+	node := l.head
+	l.head = l.head.next
 	return node.data, l
 }
 
