@@ -11,9 +11,15 @@ type stackNode struct {
 	next *stackNode
 }
 
+type stack struct {
+	stk     *stackNode
+	opCount int
+}
+
 type TwoStack struct {
-	head *stackNode
-	tail *stackNode
+	opCount int
+	head    *stack
+	tail    *stack
 }
 
 var _ Dequeue = (*TwoStack)(nil)
@@ -26,37 +32,37 @@ func (l *TwoStack) PushLeft(datum any) Dequeue {
 	if l == nil {
 		l = &TwoStack{}
 	}
-	node := &stackNode{data: datum}
-	node.next = l.head
-	l.head = node
+	l.opCount++
+	l.head = l.head.Push(datum)
 	return l
 }
+
 func (l *TwoStack) PopLeft() (any, Dequeue) {
 	if l == nil {
 		l = &TwoStack{}
 	}
-	if l.head == nil {
-		for node := l.tail; node != nil; node = l.tail {
-			l.tail = l.tail.next
-			node.next = l.head
-			l.head = node
+	l.opCount++
+	if l.head.stk == nil {
+		var data any
+		for l.tail.stk != nil {
+			data, l.tail = l.tail.Pop()
+			l.head = l.head.Push(data)
 		}
 	}
 	if l.head == nil {
 		return nil, l
 	}
-	node := l.head
-	l.head = l.head.next
-	return node.data, l
+	var data any
+	data, l.head = l.head.Pop()
+	return data, l
 }
 
 func (l *TwoStack) PushRight(datum any) Dequeue {
 	if l == nil {
 		l = &TwoStack{}
 	}
-	node := &stackNode{data: datum}
-	node.next = l.tail
-	l.tail = node
+	l.opCount++
+	l.tail = l.tail.Push(datum)
 	return l
 }
 
@@ -64,19 +70,20 @@ func (l *TwoStack) PopRight() (any, Dequeue) {
 	if l == nil {
 		l = &TwoStack{}
 	}
-	if l.tail == nil {
-		for node := l.head; node != nil; node = l.head {
-			l.head = l.head.next
-			node.next = l.tail
-			l.tail = node
+	l.opCount++
+	if l.tail.stk == nil {
+		var data any
+		for l.head.stk != nil {
+			data, l.head = l.head.Pop()
+			l.tail = l.tail.Push(data)
 		}
 	}
 	if l.tail == nil {
 		return nil, l
 	}
-	node := l.tail
-	l.tail = l.tail.next
-	return node.data, l
+	var data any
+	data, l.tail = l.tail.Pop()
+	return data, l
 }
 
 func (l *TwoStack) Print(fout *os.File) {
@@ -84,13 +91,55 @@ func (l *TwoStack) Print(fout *os.File) {
 		l = &TwoStack{}
 	}
 	fmt.Fprintf(fout, "head: ")
-	for p := l.head; p != nil; p = p.next {
+	for p := l.head.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
 	fmt.Fprintf(fout, "tail: ")
-	for p := l.tail; p != nil; p = p.next {
+	for p := l.tail.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
+	stackOps := l.tail.Operations() + l.head.Operations()
+	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d\n", l.opCount, stackOps)
+}
+
+func (s *stack) Operations() int {
+	if s == nil {
+		return 0
+	}
+	return s.opCount
+}
+
+func (s *stack) Node() *stackNode {
+	if s == nil {
+		return nil
+	}
+	return s.stk
+}
+
+func (s *stack) Push(data any) *stack {
+	if s == nil {
+		s = &stack{}
+	}
+	s.opCount++
+	node := &stackNode{data: data}
+	node.next = s.stk
+	s.stk = node
+	return s
+}
+
+func (s *stack) Pop() (any, *stack) {
+	if s == nil {
+		s = &stack{}
+	}
+	s.opCount++
+
+	if s.stk == nil {
+		return nil, s
+	}
+
+	node := s.stk
+	s.stk = s.stk.next
+	return node.data, s
 }
