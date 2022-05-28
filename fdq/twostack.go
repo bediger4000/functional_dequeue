@@ -18,6 +18,10 @@ type TwoStack struct {
 
 var _ Dequeue = (*TwoStack)(nil)
 
+func init() {
+	Implementations = append(Implementations, "twostack")
+}
+
 func (l *TwoStack) PushLeft(datum any) Dequeue {
 	if l == nil {
 		l = &TwoStack{}

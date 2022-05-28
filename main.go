@@ -73,6 +73,7 @@ func chooseDequeue(implementation string) fdq.Dequeue {
 }
 
 func askImplementation() fdq.Dequeue {
+	fmt.Printf("Available implementations: %v\n", fdq.Implementations)
 	fmt.Print("Choose dequeue implementation: ")
 	var qimp string
 	n, err := fmt.Scanf("%s\n", &qimp)

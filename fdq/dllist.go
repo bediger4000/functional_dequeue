@@ -19,6 +19,10 @@ type ListQueue struct {
 
 var _ Dequeue = (*ListQueue)(nil)
 
+func init() {
+	Implementations = append(Implementations, "dllist")
+}
+
 func (l *ListQueue) PushLeft(datum any) Dequeue {
 	if l == nil {
 		l = &ListQueue{}

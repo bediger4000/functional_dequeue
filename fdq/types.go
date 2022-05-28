@@ -2,6 +2,8 @@ package fdq
 
 import "os"
 
+var Implementations []string
+
 type Dequeue interface {
 	PushLeft(any) Dequeue
 	PopLeft() (any, Dequeue)
