@@ -3,45 +3,80 @@ package main
 import (
 	"fmt"
 	"functional_dequeue/fdq"
+	"io"
+	"log"
 	"os"
 )
 
 func main() {
 	var q fdq.Dequeue
 
-	switch os.Args[1] {
-	case "dllist":
-		q = (*fdq.ListQueue)(nil)
-	case "twostack":
-		q = (*fdq.TwoStack)(nil)
+	if len(os.Args) > 1 {
+		q = chooseDequeue(os.Args[1])
 	}
 
-	var data any
+REPL:
+	for {
+		if q == nil {
+			q = askImplementation()
+			continue
+		}
 
-	for idx := 2; idx < len(os.Args); {
+		fmt.Print("> ")
 
-		thing := os.Args[idx]
+		var operation, data string
+		n, err := fmt.Scanf("%s %s\n", &operation, &data)
+		if err == io.EOF {
+			fmt.Println("EOF on read")
+			break
+		}
+		if n != 1 && err != nil {
+			fmt.Printf("Failed to read: %v\n", err)
+			break
+		}
 
-		switch thing {
+		var returnData any
+
+		switch operation {
 		case "popL":
-			idx++
-			data, q = q.PopLeft()
-			fmt.Printf("pop left: %v\n", data)
+			returnData, q = q.PopLeft()
+			fmt.Printf("pop left: %v\n", returnData)
 		case "pushL":
-			q = q.PushLeft(os.Args[idx+1])
-			idx += 2
+			q = q.PushLeft(data)
 		case "popR":
-			idx++
-			data, q = q.PopRight()
-			fmt.Printf("pop right: %v\n", data)
+			returnData, q = q.PopRight()
+			fmt.Printf("pop right: %v\n", returnData)
 		case "pushR":
-			q = q.PushRight(os.Args[idx+1])
-			idx += 2
+			q = q.PushRight(data)
 		case "print":
 			q.Print(os.Stdout)
-			idx++
+		case "quit":
+			break REPL
 		default:
-			idx++
 		}
 	}
+}
+
+func chooseDequeue(implementation string) fdq.Dequeue {
+	switch implementation {
+	case "dllist":
+		return (*fdq.ListQueue)(nil)
+	case "twostack":
+		return (*fdq.TwoStack)(nil)
+	}
+	fmt.Printf("unknown dequeue implemention: %q\n", implementation)
+	return nil
+}
+
+func askImplementation() fdq.Dequeue {
+	fmt.Print("Choose dequeue implementation: ")
+	var qimp string
+	n, err := fmt.Scanf("%s\n", &qimp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if n != 1 {
+		log.Fatal("no implementation named")
+	}
+	return chooseDequeue(qimp)
 }
