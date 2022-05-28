@@ -42,12 +42,16 @@ REPL:
 			returnData, q = q.PopLeft()
 			fmt.Printf("pop left: %v\n", returnData)
 		case "pushL":
-			q = q.PushLeft(data)
+			if n > 1 {
+				q = q.PushLeft(data)
+			}
 		case "popR":
 			returnData, q = q.PopRight()
 			fmt.Printf("pop right: %v\n", returnData)
 		case "pushR":
-			q = q.PushRight(data)
+			if n > 1 {
+				q = q.PushRight(data)
+			}
 		case "print":
 			q.Print(os.Stdout)
 		case "quit":
