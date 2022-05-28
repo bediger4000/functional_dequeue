@@ -62,9 +62,9 @@ func (l *TwoStack) PopRight() (any, Dequeue) {
 	}
 	if l.tail == nil {
 		for node := l.head; node != nil; node = l.head {
+			l.head = l.head.next
 			node.next = l.tail
 			l.tail = node
-			l.head = l.head.next
 		}
 	}
 	if l.tail == nil {
