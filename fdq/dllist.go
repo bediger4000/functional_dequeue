@@ -13,8 +13,9 @@ type listNode struct {
 }
 
 type ListQueue struct {
-	head *listNode
-	tail *listNode
+	opCount int
+	head    *listNode
+	tail    *listNode
 }
 
 var _ Dequeue = (*ListQueue)(nil)
@@ -29,10 +30,12 @@ func (l *ListQueue) PushLeft(datum any) Dequeue {
 	}
 	node := &listNode{data: datum}
 	if l.head == nil {
+		l.opCount++
 		l.head = node
 		l.tail = node
 		return l
 	}
+	l.opCount++
 	node.next = l.head
 	l.head.prev = node
 	l.head = node
@@ -46,6 +49,7 @@ func (l *ListQueue) PopLeft() (any, Dequeue) {
 		return nil, l
 	}
 
+	l.opCount++
 	node := l.head
 	l.head = l.head.next
 	if l.head != nil {
@@ -61,10 +65,12 @@ func (l *ListQueue) PushRight(datum any) Dequeue {
 	}
 	node := &listNode{data: datum}
 	if l.tail == nil {
+		l.opCount++
 		l.head = node
 		l.tail = node
 		return l
 	}
+	l.opCount++
 	node.prev = l.tail
 	l.tail.next = node
 	l.tail = node
@@ -79,6 +85,7 @@ func (l *ListQueue) PopRight() (any, Dequeue) {
 		return nil, l
 	}
 
+	l.opCount++
 	node := l.tail
 	l.tail = l.tail.prev
 	if l.tail != nil {
@@ -104,4 +111,5 @@ func (l *ListQueue) Print(fout *os.File) {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
+	fmt.Fprintf(fout, "Operations: %d\n", l.opCount)
 }
