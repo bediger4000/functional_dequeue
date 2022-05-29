@@ -107,6 +107,10 @@ func (l *TwoStack) Type() string {
 	return "twostack"
 }
 
+func (l *TwoStack) Operations() (int, int) {
+	return l.opCount, l.tail.Operations() + l.head.Operations()
+}
+
 func (s *stack) Operations() int {
 	if s == nil {
 		return 0

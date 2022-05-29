@@ -11,4 +11,5 @@ type Dequeue interface {
 	PopRight() (any, Dequeue)
 	Print(*os.File)
 	Type() string
+	Operations() (int, int) // Dequeue op count, internal op count
 }

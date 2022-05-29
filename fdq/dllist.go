@@ -117,3 +117,7 @@ func (l *ListQueue) Print(fout *os.File) {
 func (l *ListQueue) Type() string {
 	return "dllist"
 }
+
+func (l *ListQueue) Operations() (int, int) {
+	return l.opCount, l.opCount
+}

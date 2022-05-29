@@ -73,6 +73,9 @@ REPL:
 			break REPL
 		case "type":
 			fmt.Printf("%s\n", q.Type())
+		case "ops":
+			dqOps, internalOps := q.Operations()
+			fmt.Printf("%d/%d\n", dqOps, internalOps)
 		case "new":
 			if n > 1 {
 				q = chooseDequeue(data)
