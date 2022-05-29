@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eou pipefail
+
+N=0
+while (( N < 50 ))
+do
+	echo pushL $N
+	(( N = N + 1 ))
+done
+
+N=0
+while (( N < 50 ))
+do
+	echo popR
+	echo popL
+	(( N = N + 2 ))
+done
+echo ops
