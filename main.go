@@ -93,6 +93,8 @@ func chooseDequeue(implementation string) fdq.Dequeue {
 		return (*fdq.ListQueue)(nil)
 	case "twostack":
 		return (*fdq.TwoStack)(nil)
+	case "halfstack":
+		return (*fdq.HalfStack)(nil)
 	}
 	fmt.Printf("unknown dequeue implemention: %q\n", implementation)
 	return nil
