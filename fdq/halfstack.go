@@ -47,6 +47,7 @@ func (l *HalfStack) PopLeft() (any, Dequeue) {
 		for ; newhead != nil; newhead = tmp {
 			l.tail.size--
 			tmp = newhead.next
+			l.tail.opCount++
 			l.head = l.head.PushNode(newhead)
 		}
 	}
@@ -87,6 +88,7 @@ func (l *HalfStack) PopRight() (any, Dequeue) {
 		for ; newhead != nil; newhead = tmp {
 			l.head.size--
 			tmp = newhead.next
+			l.head.opCount++
 			l.tail = l.tail.PushNode(newhead)
 		}
 	}
