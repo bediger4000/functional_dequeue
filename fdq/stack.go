@@ -26,14 +26,18 @@ func (s *stack) Node() *stackNode {
 }
 
 func (s *stack) Push(data any) *stack {
+	node := &stackNode{data: data}
+	return s.PushNode(node)
+}
+
+func (s *stack) PushNode(node *stackNode) *stack {
 	if s == nil {
 		s = &stack{}
 	}
-	s.opCount++
-	node := &stackNode{data: data}
 	node.next = s.stk
 	s.stk = node
 	s.size++
+	s.opCount++
 	return s
 }
 
