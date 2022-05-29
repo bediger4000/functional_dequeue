@@ -75,7 +75,7 @@ REPL:
 			fmt.Printf("%s\n", q.Type())
 		case "ops":
 			dqOps, internalOps := q.Operations()
-			fmt.Printf("%d/%d\n", dqOps, internalOps)
+			fmt.Printf("%d/%d => %.3f\n", dqOps, internalOps, float64(internalOps)/float64(dqOps))
 		case "new":
 			if n > 1 {
 				q = chooseDequeue(data)
