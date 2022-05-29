@@ -7,12 +7,12 @@ import (
 
 type stackNode struct {
 	data any
-
 	next *stackNode
 }
 
 type stack struct {
 	stk     *stackNode
+	size    int
 	opCount int
 }
 
@@ -42,17 +42,16 @@ func (l *TwoStack) PopLeft() (any, Dequeue) {
 		l = &TwoStack{}
 	}
 	l.opCount++
-	if l.head == nil {
-		var data any
-		for l.tail.stk != nil {
+	var data any
+	if l.head.Size() == 0 {
+		for l.tail.Size() > 0 {
 			data, l.tail = l.tail.Pop()
 			l.head = l.head.Push(data)
 		}
 	}
-	if l.head == nil {
+	if l.head.Size() == 0 {
 		return nil, l
 	}
-	var data any
 	data, l.head = l.head.Pop()
 	return data, l
 }
@@ -71,9 +70,9 @@ func (l *TwoStack) PopRight() (any, Dequeue) {
 		l = &TwoStack{}
 	}
 	l.opCount++
-	if l.tail == nil {
+	if l.tail.Size() == 0 {
 		var data any
-		for l.head.stk != nil {
+		for l.head.Size() > 0 {
 			data, l.head = l.head.Pop()
 			l.tail = l.tail.Push(data)
 		}
@@ -90,12 +89,12 @@ func (l *TwoStack) Print(fout *os.File) {
 	if l == nil {
 		l = &TwoStack{}
 	}
-	fmt.Fprintf(fout, "head: ")
+	fmt.Fprintf(fout, "head (%d): ", l.head.Size())
 	for p := l.head.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	fmt.Fprintf(fout, "tail: ")
+	fmt.Fprintf(fout, "tail (%d): ", l.tail.Size())
 	for p := l.tail.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
@@ -126,6 +125,7 @@ func (s *stack) Push(data any) *stack {
 	node := &stackNode{data: data}
 	node.next = s.stk
 	s.stk = node
+	s.size++
 	return s
 }
 
@@ -141,5 +141,13 @@ func (s *stack) Pop() (any, *stack) {
 
 	node := s.stk
 	s.stk = s.stk.next
+	s.size--
 	return node.data, s
+}
+
+func (s *stack) Size() int {
+	if s == nil {
+		return 0
+	}
+	return s.size
 }
