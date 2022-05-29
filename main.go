@@ -56,6 +56,10 @@ REPL:
 			q.Print(os.Stdout)
 		case "quit":
 			break REPL
+		case "new":
+			if n > 1 {
+				q = chooseDequeue(data)
+			}
 		default:
 		}
 	}
