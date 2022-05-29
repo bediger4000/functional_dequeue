@@ -42,7 +42,7 @@ func (l *TwoStack) PopLeft() (any, Dequeue) {
 		l = &TwoStack{}
 	}
 	l.opCount++
-	if l.head.stk == nil {
+	if l.head == nil {
 		var data any
 		for l.tail.stk != nil {
 			data, l.tail = l.tail.Pop()
@@ -71,7 +71,7 @@ func (l *TwoStack) PopRight() (any, Dequeue) {
 		l = &TwoStack{}
 	}
 	l.opCount++
-	if l.tail.stk == nil {
+	if l.tail == nil {
 		var data any
 		for l.head.stk != nil {
 			data, l.head = l.head.Pop()
