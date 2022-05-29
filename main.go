@@ -76,6 +76,8 @@ REPL:
 		case "new":
 			if n > 1 {
 				q = chooseDequeue(data)
+			} else {
+				q = askImplementation()
 			}
 		default:
 		}
