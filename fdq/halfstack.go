@@ -114,7 +114,7 @@ func (l *HalfStack) Print(fout *os.File) {
 	}
 	fmt.Fprintf(fout, "\n")
 	stackOps := l.tail.Operations() + l.head.Operations()
-	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d\n", l.opCount, stackOps)
+	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d => %.3f\n", l.opCount, stackOps, float64(stackOps)/float64(l.opCount))
 }
 
 func (l *HalfStack) Type() string {
