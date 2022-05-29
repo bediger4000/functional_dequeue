@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"functional_dequeue/fdq"
 	"io"
@@ -9,10 +10,16 @@ import (
 )
 
 func main() {
+	implementation := flag.String("i", "twostack", "choice of implementation")
+	quiet := flag.Bool("q", false, "non-interactive output")
+	flag.Parse()
+
 	var q fdq.Dequeue
 
-	if len(os.Args) > 1 {
-		q = chooseDequeue(os.Args[1])
+	if flag.NArg() > 0 {
+		q = chooseDequeue(flag.Arg(0))
+	} else {
+		q = chooseDequeue(*implementation)
 	}
 
 REPL:
@@ -22,12 +29,14 @@ REPL:
 			continue
 		}
 
-		fmt.Print("> ")
+		if !*quiet {
+			fmt.Print("> ")
+		}
 
 		var operation, data string
 		n, err := fmt.Scanf("%s %s\n", &operation, &data)
 		if err == io.EOF {
-			fmt.Println("EOF on read")
+			// fmt.Println("EOF on read")
 			break
 		}
 		if n != 1 && err != nil {
@@ -40,14 +49,20 @@ REPL:
 		switch operation {
 		case "popL":
 			returnData, q = q.PopLeft()
-			fmt.Printf("pop left: %v\n", returnData)
+			if !*quiet {
+				fmt.Print("pop left: ")
+			}
+			fmt.Printf("%v\n", returnData)
 		case "pushL":
 			if n > 1 {
 				q = q.PushLeft(data)
 			}
 		case "popR":
 			returnData, q = q.PopRight()
-			fmt.Printf("pop right: %v\n", returnData)
+			if !*quiet {
+				fmt.Print("pop right: ")
+			}
+			fmt.Printf("%v\n", returnData)
 		case "pushR":
 			if n > 1 {
 				q = q.PushRight(data)
@@ -56,6 +71,8 @@ REPL:
 			q.Print(os.Stdout)
 		case "quit":
 			break REPL
+		case "type":
+			fmt.Printf("%s\n", q.Type())
 		case "new":
 			if n > 1 {
 				q = chooseDequeue(data)

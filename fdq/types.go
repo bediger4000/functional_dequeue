@@ -10,4 +10,5 @@ type Dequeue interface {
 	PushRight(any) Dequeue
 	PopRight() (any, Dequeue)
 	Print(*os.File)
+	Type() string
 }

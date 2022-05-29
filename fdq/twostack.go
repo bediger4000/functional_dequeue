@@ -103,6 +103,10 @@ func (l *TwoStack) Print(fout *os.File) {
 	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d\n", l.opCount, stackOps)
 }
 
+func (l *TwoStack) Type() string {
+	return "twostack"
+}
+
 func (s *stack) Operations() int {
 	if s == nil {
 		return 0

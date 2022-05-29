@@ -113,3 +113,7 @@ func (l *ListQueue) Print(fout *os.File) {
 	fmt.Fprintf(fout, "\n")
 	fmt.Fprintf(fout, "Operations: %d\n", l.opCount)
 }
+
+func (l *ListQueue) Type() string {
+	return "dllist"
+}
