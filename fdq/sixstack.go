@@ -8,7 +8,7 @@ import (
 type SixStack struct {
 	opCount int
 	left    *stack
-	tail    *stack
+	right   *stack
 }
 
 var emptySixStack Dequeue = (*SixStack)(nil)
@@ -38,20 +38,20 @@ func (l *SixStack) PopLeft() (any, Dequeue) {
 	}
 	l.opCount++
 	var data any
-	if l.left.Size() == 0 && l.tail.Size() > 0 {
-		n := l.tail.Size() / 2
-		indirect := &(l.tail.stk)
+	if l.left.Size() == 0 && l.right.Size() > 0 {
+		n := l.right.Size() / 2
+		indirect := &(l.right.stk)
 		for i := 0; i < n; i++ {
 			indirect = &(*indirect).next
-			l.tail.opCount++
+			l.right.opCount++
 		}
 		newhead := *indirect
 		*indirect = nil
 		var tmp *stackNode
 		for ; newhead != nil; newhead = tmp {
-			l.tail.size--
+			l.right.size--
 			tmp = newhead.next
-			l.tail.opCount++
+			l.right.opCount++
 			l.left = l.left.PushNode(newhead)
 		}
 	}
@@ -67,7 +67,7 @@ func (l *SixStack) PushRight(datum any) Dequeue {
 		l = &SixStack{}
 	}
 	l.opCount++
-	l.tail = l.tail.Push(datum)
+	l.right = l.right.Push(datum)
 	return l
 }
 
@@ -77,7 +77,7 @@ func (l *SixStack) PopRight() (any, Dequeue) {
 	}
 	l.opCount++
 	var data any
-	if l.tail.Size() == 0 && l.left.Size() > 0 {
+	if l.right.Size() == 0 && l.left.Size() > 0 {
 		n := l.left.Size() / 2
 
 		indirect := &(l.left.stk)
@@ -93,13 +93,13 @@ func (l *SixStack) PopRight() (any, Dequeue) {
 			l.left.size--
 			tmp = newhead.next
 			l.left.opCount++
-			l.tail = l.tail.PushNode(newhead)
+			l.right = l.right.PushNode(newhead)
 		}
 	}
-	if l.tail.Size() == 0 {
+	if l.right.Size() == 0 {
 		return nil, l
 	}
-	data, l.tail = l.tail.Pop()
+	data, l.right = l.right.Pop()
 	return data, l
 }
 
@@ -112,12 +112,12 @@ func (l *SixStack) Print(fout *os.File) {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	fmt.Fprintf(fout, "tail (%d:%d): ", l.tail.Size(), l.tail.Operations())
-	for p := l.tail.Node(); p != nil; p = p.next {
+	fmt.Fprintf(fout, "right (%d:%d): ", l.right.Size(), l.right.Operations())
+	for p := l.right.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	stackOps := l.tail.Operations() + l.left.Operations()
+	stackOps := l.right.Operations() + l.left.Operations()
 	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d => %.3f\n", l.opCount, stackOps, float64(stackOps)/float64(l.opCount))
 }
 
@@ -126,5 +126,5 @@ func (l *SixStack) Type() string {
 }
 
 func (l *SixStack) Operations() (int, int) {
-	return l.opCount, l.tail.Operations() + l.left.Operations()
+	return l.opCount, l.right.Operations() + l.left.Operations()
 }
