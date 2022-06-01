@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -46,28 +47,28 @@ REPL:
 
 		var returnData any
 
-		switch operation {
-		case "popL":
+		switch strings.ToLower(operation) {
+		case "popl", "pop":
 			returnData, q = q.PopLeft()
 			if !*quiet {
 				fmt.Print("pop left: ")
 			}
 			fmt.Printf("%v\n", returnData)
-		case "pushL":
+		case "pushl", "push":
 			if n > 1 {
 				q = q.PushLeft(data)
 			}
-		case "popR":
+		case "popr", "pull":
 			returnData, q = q.PopRight()
 			if !*quiet {
 				fmt.Print("pop right: ")
 			}
 			fmt.Printf("%v\n", returnData)
-		case "pushR":
+		case "pushr":
 			if n > 1 {
 				q = q.PushRight(data)
 			}
-		case "print":
+		case "print", "list":
 			q.Print(os.Stdout)
 		case "quit":
 			break REPL
