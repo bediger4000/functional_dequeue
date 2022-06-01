@@ -11,12 +11,17 @@ type HalfStack struct {
 	tail    *stack
 }
 
-var _ Dequeue = (*HalfStack)(nil)
+var emptyHalfStack Dequeue = (*HalfStack)(nil)
 
 const halfstackType = "halfstack"
 
 func init() {
 	Implementations = append(Implementations, halfstackType)
+	if NewFunctions == nil {
+		NewFunctions = make(map[string]Dequeue)
+	}
+	NewFunctions[halfstackType] = emptyHalfStack
+
 }
 
 func (l *HalfStack) PushLeft(datum any) Dequeue {

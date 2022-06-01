@@ -13,3 +13,7 @@ type Dequeue interface {
 	Type() string
 	Operations() (int, int) // Dequeue op count, internal op count
 }
+
+type NewFunction func() Dequeue
+
+var NewFunctions map[string]Dequeue

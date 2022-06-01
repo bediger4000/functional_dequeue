@@ -18,10 +18,17 @@ type ListQueue struct {
 	tail    *listNode
 }
 
-var _ Dequeue = (*ListQueue)(nil)
+const dllistType = "dllist"
+
+var emptyDllist Dequeue = (*ListQueue)(nil)
 
 func init() {
-	Implementations = append(Implementations, "dllist")
+	Implementations = append(Implementations, dllistType)
+	if NewFunctions == nil {
+		NewFunctions = make(map[string]Dequeue)
+	}
+	NewFunctions[dllistType] = emptyDllist
+
 }
 
 func (l *ListQueue) PushLeft(datum any) Dequeue {

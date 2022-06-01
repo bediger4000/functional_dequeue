@@ -11,10 +11,17 @@ type TwoStack struct {
 	tail    *stack
 }
 
-var _ Dequeue = (*TwoStack)(nil)
+var emptyTwoStack Dequeue = (*TwoStack)(nil)
+
+const twostackType = "twostack"
 
 func init() {
-	Implementations = append(Implementations, "twostack")
+	Implementations = append(Implementations, twostackType)
+	if NewFunctions == nil {
+		NewFunctions = make(map[string]Dequeue)
+	}
+	NewFunctions[twostackType] = emptyTwoStack
+
 }
 
 func (l *TwoStack) PushLeft(datum any) Dequeue {

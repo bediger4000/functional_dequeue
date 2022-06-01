@@ -11,12 +11,20 @@ type SixStack struct {
 	tail    *stack
 }
 
-var _ Dequeue = (*SixStack)(nil)
+var emptySixStack Dequeue = (*SixStack)(nil)
 
 const sixstackType = "sixstack"
 
 func init() {
 	Implementations = append(Implementations, sixstackType)
+	if NewFunctions == nil {
+		NewFunctions = make(map[string]Dequeue)
+	}
+	NewFunctions[sixstackType] = emptySixStack
+}
+
+func NewSixStack() Dequeue {
+	return &SixStack{}
 }
 
 func (l *SixStack) PushLeft(datum any) Dequeue {
