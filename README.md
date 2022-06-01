@@ -3,6 +3,7 @@
 I found a "daily coding problem":
 
 ---
+
 ## Daily Coding Problem: Problem #1116 [Hard]
 
 This problem was asked by Google.
@@ -17,11 +18,13 @@ operations are possible:
 
 Implement a quack using three stacks and `O(1)` additional memory,
 so that the amortized time for any push, pop, or pull operation is `O(1)`.
+
 ---
 
 I could not solve this, so I searched for an answer.
 The answer I found was the no such algorithm is currently known,
 but that a 6-stack algorithm exists.
+Need a reference - that stackexchange.com comment
 
 As near as I can tell, the 6-stack algorithm is described in
 
