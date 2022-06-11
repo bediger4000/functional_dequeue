@@ -5,15 +5,15 @@ import (
 	"os"
 )
 
-type SixStack struct {
+type Stack6 struct {
 	opCount int
-	left    *stack
-	right   *stack
+	head    *stack
+	tail    *stack
 }
 
-var emptySixStack Dequeue = (*SixStack)(nil)
+var emptySixStack Dequeue = (*Stack6)(nil)
 
-const sixstackType = "sixstack"
+const sixstackType = "stack6"
 
 func init() {
 	Implementations = append(Implementations, sixstackType)
@@ -21,110 +21,88 @@ func init() {
 		NewFunctions = make(map[string]Dequeue)
 	}
 	NewFunctions[sixstackType] = emptySixStack
+
 }
 
-func (l *SixStack) PushLeft(datum any) Dequeue {
+func (l *Stack6) PushLeft(datum any) Dequeue {
 	if l == nil {
-		l = &SixStack{}
+		l = &Stack6{}
 	}
 	l.opCount++
-	l.left = l.left.Push(datum)
+	l.head = l.head.Push(datum)
 	return l
 }
 
-func (l *SixStack) PopLeft() (any, Dequeue) {
+func (l *Stack6) PopLeft() (any, Dequeue) {
 	if l == nil {
-		l = &SixStack{}
+		l = &Stack6{}
 	}
 	l.opCount++
 	var data any
-	if l.left.Size() == 0 && l.right.Size() > 0 {
-		n := l.right.Size() / 2
-		indirect := &(l.right.stk)
-		for i := 0; i < n; i++ {
-			indirect = &(*indirect).next
-			l.right.opCount++
-		}
-		newhead := *indirect
-		*indirect = nil
-		var tmp *stackNode
-		for ; newhead != nil; newhead = tmp {
-			l.right.size--
-			tmp = newhead.next
-			l.right.opCount++
-			l.left = l.left.PushNode(newhead)
+	if l.head.Size() == 0 {
+		for l.tail.Size() > 0 {
+			data, l.tail = l.tail.Pop()
+			l.head = l.head.Push(data)
 		}
 	}
-	if l.left.Size() == 0 {
+	if l.head.Size() == 0 {
 		return nil, l
 	}
-	data, l.left = l.left.Pop()
+	data, l.head = l.head.Pop()
 	return data, l
 }
 
-func (l *SixStack) PushRight(datum any) Dequeue {
+func (l *Stack6) PushRight(datum any) Dequeue {
 	if l == nil {
-		l = &SixStack{}
+		l = &Stack6{}
 	}
 	l.opCount++
-	l.right = l.right.Push(datum)
+	l.tail = l.tail.Push(datum)
 	return l
 }
 
-func (l *SixStack) PopRight() (any, Dequeue) {
+func (l *Stack6) PopRight() (any, Dequeue) {
 	if l == nil {
-		l = &SixStack{}
+		l = &Stack6{}
 	}
 	l.opCount++
-	var data any
-	if l.right.Size() == 0 && l.left.Size() > 0 {
-		n := l.left.Size() / 2
-
-		indirect := &(l.left.stk)
-		for i := 0; i < n; i++ {
-			indirect = &(*indirect).next
-			l.left.opCount++
-		}
-		newhead := *indirect
-		*indirect = nil
-
-		var tmp *stackNode
-		for ; newhead != nil; newhead = tmp {
-			l.left.size--
-			tmp = newhead.next
-			l.left.opCount++
-			l.right = l.right.PushNode(newhead)
+	if l.tail.Size() == 0 {
+		var data any
+		for l.head.Size() > 0 {
+			data, l.head = l.head.Pop()
+			l.tail = l.tail.Push(data)
 		}
 	}
-	if l.right.Size() == 0 {
+	if l.tail == nil {
 		return nil, l
 	}
-	data, l.right = l.right.Pop()
+	var data any
+	data, l.tail = l.tail.Pop()
 	return data, l
 }
 
-func (l *SixStack) Print(fout *os.File) {
+func (l *Stack6) Print(fout *os.File) {
 	if l == nil {
-		l = &SixStack{}
+		l = &Stack6{}
 	}
-	fmt.Fprintf(fout, "left (%d:%d): ", l.left.Size(), l.left.Operations())
-	for p := l.left.Node(); p != nil; p = p.next {
+	fmt.Fprintf(fout, "head (%d): ", l.head.Size())
+	for p := l.head.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	fmt.Fprintf(fout, "right (%d:%d): ", l.right.Size(), l.right.Operations())
-	for p := l.right.Node(); p != nil; p = p.next {
+	fmt.Fprintf(fout, "tail (%d): ", l.tail.Size())
+	for p := l.tail.Node(); p != nil; p = p.next {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	stackOps := l.right.Operations() + l.left.Operations()
+	stackOps := l.tail.Operations() + l.head.Operations()
 	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d => %.3f\n", l.opCount, stackOps, float64(stackOps)/float64(l.opCount))
 }
 
-func (l *SixStack) Type() string {
-	return halfstackType
+func (l *Stack6) Type() string {
+	return sixstackType
 }
 
-func (l *SixStack) Operations() (int, int) {
-	return l.opCount, l.right.Operations() + l.left.Operations()
+func (l *Stack6) Operations() (int, int) {
+	return l.opCount, l.tail.Operations() + l.head.Operations()
 }
