@@ -9,6 +9,11 @@ type Stack6 struct {
 	opCount int
 	head    *stack
 	tail    *stack
+
+	currentPopL  func(*Stack6) any
+	currentPushL func(*Stack6, any)
+	currentPopR  func(*Stack6) any
+	currentPushR func(*Stack6, any)
 }
 
 var emptySixStack Dequeue = (*Stack6)(nil)
@@ -24,20 +29,38 @@ func init() {
 
 }
 
+func newStack6() *Stack6 {
+	return &Stack6{
+		currentPopL:  smallPopLeft,
+		currentPushL: smallPushLeft,
+		currentPopR:  smallPopRight,
+		currentPushR: smallPushRight,
+	}
+}
+
 func (l *Stack6) PushLeft(datum any) Dequeue {
 	if l == nil {
-		l = &Stack6{}
+		l = newStack6()
 	}
 	l.opCount++
-	l.head = l.head.Push(datum)
+	l.currentPushL(l, datum)
 	return l
+}
+
+func smallPushLeft(l *Stack6, datum any) {
+	l.head = l.head.Push(datum)
 }
 
 func (l *Stack6) PopLeft() (any, Dequeue) {
 	if l == nil {
-		l = &Stack6{}
+		l = newStack6()
 	}
 	l.opCount++
+	data := l.currentPopL(l)
+	return data, l
+}
+
+func smallPopLeft(l *Stack6) any {
 	var data any
 	if l.head.Size() == 0 {
 		for l.tail.Size() > 0 {
@@ -45,11 +68,11 @@ func (l *Stack6) PopLeft() (any, Dequeue) {
 			l.head = l.head.Push(data)
 		}
 	}
-	if l.head.Size() == 0 {
-		return nil, l
+	if l.head == nil {
+		return nil
 	}
 	data, l.head = l.head.Pop()
-	return data, l
+	return data
 }
 
 func (l *Stack6) PushRight(datum any) Dequeue {
@@ -61,24 +84,32 @@ func (l *Stack6) PushRight(datum any) Dequeue {
 	return l
 }
 
+func smallPushRight(l *Stack6, datum any) {
+	l.tail = l.tail.Push(datum)
+}
+
 func (l *Stack6) PopRight() (any, Dequeue) {
 	if l == nil {
-		l = &Stack6{}
+		l = newStack6()
 	}
 	l.opCount++
+	data := l.currentPopR(l)
+	return data, l
+}
+
+func smallPopRight(l *Stack6) any {
+	var data any
 	if l.tail.Size() == 0 {
-		var data any
 		for l.head.Size() > 0 {
 			data, l.head = l.head.Pop()
 			l.tail = l.tail.Push(data)
 		}
 	}
 	if l.tail == nil {
-		return nil, l
+		return nil
 	}
-	var data any
 	data, l.tail = l.tail.Pop()
-	return data, l
+	return data
 }
 
 func (l *Stack6) Print(fout *os.File) {
