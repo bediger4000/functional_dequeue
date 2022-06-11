@@ -45,6 +45,24 @@ func (s *stack) Pop() (any, *stack) {
 	if s == nil {
 		s = &stack{}
 	}
+
+	var node *stackNode
+
+	node, s = s.PopNode()
+
+	var data any
+
+	if node != nil {
+		data = node.data
+	}
+
+	return data, s
+}
+
+func (s *stack) PopNode() (*stackNode, *stack) {
+	if s == nil {
+		s = &stack{}
+	}
 	s.opCount++
 
 	if s.stk == nil {
@@ -54,7 +72,7 @@ func (s *stack) Pop() (any, *stack) {
 	node := s.stk
 	s.stk = s.stk.next
 	s.size--
-	return node.data, s
+	return node, s
 }
 
 func (s *stack) Size() int {
