@@ -80,7 +80,7 @@ func (l *Stack6) PushRight(datum any) Dequeue {
 		l = &Stack6{}
 	}
 	l.opCount++
-	l.tail = l.tail.Push(datum)
+	l.currentPushR(l, datum)
 	return l
 }
 
