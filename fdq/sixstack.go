@@ -49,6 +49,9 @@ func (l *Stack6) PushLeft(datum any) Dequeue {
 
 func smallPushLeft(l *Stack6, datum any) {
 	l.head = l.head.Push(datum)
+	if l.tail.Size()+l.head.Size() == 4 {
+		l.rearrange4size()
+	}
 }
 
 func (l *Stack6) PopLeft() (any, Dequeue) {
@@ -77,7 +80,7 @@ func smallPopLeft(l *Stack6) any {
 
 func (l *Stack6) PushRight(datum any) Dequeue {
 	if l == nil {
-		l = &Stack6{}
+		l = newStack6()
 	}
 	l.opCount++
 	l.currentPushR(l, datum)
@@ -86,6 +89,9 @@ func (l *Stack6) PushRight(datum any) Dequeue {
 
 func smallPushRight(l *Stack6, datum any) {
 	l.tail = l.tail.Push(datum)
+	if l.tail.Size()+l.head.Size() == 4 {
+		l.rearrange4size()
+	}
 }
 
 func (l *Stack6) PopRight() (any, Dequeue) {
@@ -114,7 +120,7 @@ func smallPopRight(l *Stack6) any {
 
 func (l *Stack6) Print(fout *os.File) {
 	if l == nil {
-		l = &Stack6{}
+		l = newStack6()
 	}
 	fmt.Fprintf(fout, "head (%d): ", l.head.Size())
 	for p := l.head.Node(); p != nil; p = p.next {
@@ -136,4 +142,29 @@ func (l *Stack6) Type() string {
 
 func (l *Stack6) Operations() (int, int) {
 	return l.opCount, l.tail.Operations() + l.head.Operations()
+}
+
+// rearrange4size called when a push (L or R) gets the Dequeque
+// to 4 items. Rearrange to 2 on head stack, 2 on tail stack,
+// set currenct functions to "large size"
+func (l *Stack6) rearrange4size() {
+	defer setLargeFunctions(l)
+	if l.head.Size() == 2 {
+		return
+	}
+	var listnodes [4]*stackNode
+	for idx := 0; l.head.Size() > 0; idx++ {
+		listnodes[idx], l.head = l.head.PopNode()
+	}
+	for idx := 3; l.tail.Size() > 0; idx-- {
+		listnodes[idx], l.tail = l.tail.PopNode()
+	}
+	l.head = l.head.PushNode(listnodes[1])
+	l.head = l.head.PushNode(listnodes[0])
+	l.tail = l.tail.PushNode(listnodes[2])
+	l.tail = l.tail.PushNode(listnodes[3])
+}
+
+func setLargeFunctions(l *Stack6) {
+	fmt.Println("set large functions")
 }
