@@ -5,10 +5,14 @@ import (
 	"os"
 )
 
+// Partial implementation of the functional, real-time (i.e. amortized O(1))
+// double-ended queue of section 5
+
 type Stack6 struct {
-	opCount int
-	head    *stack
-	tail    *stack
+	opCount      int
+	tempStackOps int
+	head         *stack
+	tail         *stack
 
 	currentPopL  func(*Stack6) any
 	currentPushL func(*Stack6, any)
@@ -18,7 +22,7 @@ type Stack6 struct {
 
 var emptySixStack Dequeue = (*Stack6)(nil)
 
-const sixstackType = "stack6"
+const sixstackType = "stack6a"
 
 func init() {
 	Implementations = append(Implementations, sixstackType)
@@ -132,7 +136,7 @@ func (l *Stack6) Print(fout *os.File) {
 		fmt.Fprintf(fout, "%s -> ", p.data)
 	}
 	fmt.Fprintf(fout, "\n")
-	stackOps := l.tail.Operations() + l.head.Operations()
+	stackOps := l.tail.Operations() + l.head.Operations() + l.tempStackOps
 	fmt.Fprintf(fout, "Dequeue operations %d, stack operations: %d => %.3f\n", l.opCount, stackOps, float64(stackOps)/float64(l.opCount))
 }
 
@@ -167,4 +171,64 @@ func (l *Stack6) rearrange4size() {
 
 func setLargeFunctions(l *Stack6) {
 	fmt.Println("set large functions")
+	l.currentPopL = smallPopLeft
+	l.currentPushL = largePushLeft
+	l.currentPopR = smallPopRight
+	l.currentPushR = smallPushRight
+}
+
+func largePushLeft(l *Stack6, datum any) {
+	l.head = l.head.Push(datum)
+	if l.initiateTransferCriteria() {
+		m := l.head.Size()
+		n := l.tail.Size()
+		B := &(l.head)
+		S := &(l.tail)
+		if m < n {
+			B, S = S, B
+		}
+		m = (*S).Size()
+		k := (*B).Size() - 3*m
+		fmt.Printf("rearranging initiated, m = %d, k = %d\n", m, k)
+
+		var auxB, auxS, newB, newS *stack
+		var datum any
+
+		// (a) Reverse 2*m+k-1 items from B to auxB
+		for i := 0; i < 2*m+k-1; i++ {
+			datum, *B = (*B).Pop()
+			auxB = auxB.Push(datum)
+		}
+		// (b) Reverse all items on S to auxS
+		for datum, *S = (*S).Pop(); datum != nil; datum, *S = (*S).Pop() {
+			auxS = auxS.Push(datum)
+		}
+		// (c) Reverse auxB on to newB
+		for datum, auxB = auxB.Pop(); datum != nil; datum, auxB = auxB.Pop() {
+			newB = newB.Push(datum)
+		}
+		// (d) Reverse B on to newS
+		for datum, *B = (*B).Pop(); datum != nil; datum, *B = (*B).Pop() {
+			newS = newS.Push(datum)
+		}
+		// (e) Reverse auxS on to newS
+		for datum, auxS = auxS.Pop(); datum != nil; datum, auxS = auxS.Pop() {
+			newS = newS.Push(datum)
+		}
+
+		l.tempStackOps += auxB.Operations() + auxS.Operations() + (*B).Operations() + (*S).Operations()
+
+		*B, *S = newB, newS
+	}
+}
+
+func (l *Stack6) initiateTransferCriteria() bool {
+	m := l.head.Size()
+	n := l.tail.Size()
+	if m > n {
+		m, n = n, m
+	}
+	// m <= n at this point
+	fmt.Printf("m %d, n %d, 3*m >= n: %v\n", m, n, 3*m >= n)
+	return !(m > 0 && n > 0 && 3*m >= n)
 }
