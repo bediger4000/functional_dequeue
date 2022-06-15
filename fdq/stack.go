@@ -1,5 +1,7 @@
 package fdq
 
+import "fmt"
+
 type stackNode struct {
 	data any
 	next *stackNode
@@ -80,4 +82,10 @@ func (s *stack) Size() int {
 		return 0
 	}
 	return s.size
+}
+
+func (s *stack) Print() {
+	for node := s.stk; node != nil; node = node.next {
+		fmt.Printf("%v -> ", node.data)
+	}
 }
