@@ -21,10 +21,18 @@ so that the amortized time for any push, pop, or pull operation is `O(1)`.
 
 ---
 
+It is said that this problem comes from `Algorithms`, 4th Ed,
+by Robert Sedgewick and Kevin Wayne:
+
+```
+Queue with three stacks. Implement a queue with three stacks so that each queue operation takes a constant (worst-case) number of stack operations. Warning : high degree of difficulty.
+```
+
+It's also said that later editions rephrase the question as "a finite number of stacks".
+
 I could not solve this, so I searched for an answer.
 The answer I found was the no such algorithm is currently known,
 but that a 6-stack algorithm exists.
-Need a reference - that stackexchange.com comment
 
 As near as I can tell, the 6-stack algorithm is described in
 
@@ -32,7 +40,7 @@ As near as I can tell, the 6-stack algorithm is described in
 
 by Tyng-Ruey Chuang and Benjamin Goldberg
 
-which appeared in the proceedings of an ACM function programming conference
+which appeared in the proceedings of an ACM functional programming conference
 that occurred in Denmark, 1993.
 
 ## What I did
