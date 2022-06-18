@@ -171,55 +171,178 @@ func (l *Stack6) rearrange4size() {
 
 func setLargeFunctions(l *Stack6) {
 	fmt.Println("set large functions")
-	l.currentPopL = smallPopLeft
+	l.currentPopL = largePopLeft
 	l.currentPushL = largePushLeft
-	l.currentPopR = smallPopRight
-	l.currentPushR = smallPushRight
+	l.currentPopR = largePopRight
+	l.currentPushR = largePushRight
 }
 
 func largePushLeft(l *Stack6, datum any) {
 	l.head = l.head.Push(datum)
 	if l.initiateTransferCriteria() {
-		m := l.head.Size()
-		n := l.tail.Size()
-		B := &(l.head)
-		S := &(l.tail)
-		if m < n {
-			B, S = S, B
-		}
-		m = (*S).Size()
-		k := (*B).Size() - 3*m
-		fmt.Printf("rearranging initiated, m = %d, k = %d\n", m, k)
-
-		var auxB, auxS, newB, newS *stack
-		var datum any
-
-		// (a) Reverse 2*m+k-1 items from B to auxB
-		for i := 0; i < 2*m+k-1; i++ {
-			datum, *B = (*B).Pop()
-			auxB = auxB.Push(datum)
-		}
-		// (b) Reverse all items on S to auxS
-		for datum, *S = (*S).Pop(); datum != nil; datum, *S = (*S).Pop() {
-			auxS = auxS.Push(datum)
-		}
-		// (c) Reverse auxB on to newB
-		for datum, auxB = auxB.Pop(); datum != nil; datum, auxB = auxB.Pop() {
-			newB = newB.Push(datum)
-		}
-		// (d) Reverse B on to newS
-		for datum, *B = (*B).Pop(); datum != nil; datum, *B = (*B).Pop() {
-			newS = newS.Push(datum)
-		}
-		// (e) Reverse auxS on to newS
-		for datum, auxS = auxS.Pop(); datum != nil; datum, auxS = auxS.Pop() {
-			newS = newS.Push(datum)
-		}
-
-		l.tempStackOps += auxB.Operations() + auxS.Operations() + (*B).Operations() + (*S).Operations()
-
-		*B, *S = newB, newS
+		l.transfer()
 	}
+}
+
+func largePushRight(l *Stack6, datum any) {
+	l.tail = l.tail.Push(datum)
+	if l.initiateTransferCriteria() {
+		l.transfer()
+	}
+}
+
+func largePopLeft(l *Stack6) any {
+	var datum any
+	datum, l.head = l.head.Pop()
+
+	if l.initiateTransferCriteria() {
+		l.transfer()
+	}
+
+	if l.tail.Size()+l.head.Size() == 4 {
+		l.setSmallFunctions()
+	}
+
+	return datum
+}
+
+func largePopRight(l *Stack6) any {
+	var datum any
+	datum, l.tail = l.tail.Pop()
+
+	if l.initiateTransferCriteria() {
+		l.transfer()
+	}
+
+	if l.tail.Size()+l.head.Size() == 4 {
+		l.setSmallFunctions()
+	}
+
+	return datum
+}
+
+func (l *Stack6) transfer() {
+	m := l.head.Size()
+	n := l.tail.Size()
+	B := &(l.head)
+	S := &(l.tail)
+	if m < n {
+		B, S = S, B
+	}
+	m = (*S).Size()
+	k := (*B).Size() - 3*m
+	fmt.Printf("rearranging initiated, m = %d, k = %d\n", m, k)
+
+	var auxB, auxS, newB, newS *stack
+	var datum any
+
+	b, s := (*B).stk, (*S).stk
+
+	steps := 0
+	// (a) Reverse 2*m+k-1 items from B to auxB
+	// (b) Reverse all items on S to auxS. S has size m
+	for i := 0; i < 2*m+k-1; i++ {
+		auxB = auxB.Push(b.data)
+		b = b.next
+
+		steps++
+
+		if i > m-1 {
+			continue
+		}
+
+		auxS = auxS.Push(s.data)
+		s = s.next
+	}
+
+	// size(B) started at 3m+k
+	// size(auxB) is 2m+k-1 here.
+	// size(B) here is (3m+k)-(2m+k-1) = m+1
+	// so auxB is always of greater size than B
+	// size(auxS) is m
+	// size(B) + size(auxS) = m+1+m = 2m+1
+
+	for auxB.Size() > 0 {
+
+		// (c) Reverse auxB on to newB
+		datum, auxB = auxB.Pop()
+		newB = newB.Push(datum)
+
+		// (d) Reverse what's left of B on to newS
+		if b != nil {
+			newS = newS.Push(b.data)
+			b = b.next
+		} else if auxS.Size() > 0 {
+			// (e) Reverse auxS on to newS
+			datum, auxS = auxS.Pop()
+			newS = newS.Push(datum)
+		}
+		steps++
+	}
+
+	// if k == 1, there's one element on auxS left
+	if auxS.Size() > 0 {
+		// (e) Reverse last element of auxS on to newS
+		datum, auxS = auxS.Pop()
+		newS = newS.Push(datum)
+		steps++
+	}
+
+	fmt.Printf("%d steps, 4*m+6 = %d\n", steps, 4*m+6)
+
+	l.tempStackOps += auxB.Operations() + auxS.Operations() + (*B).Operations() + (*S).Operations()
+
+	*B, *S = newB, newS
+}
+
+func (l *Stack6) explicittransfer() {
+	m := l.head.Size()
+	n := l.tail.Size()
+	B := &(l.head)
+	S := &(l.tail)
+	if m < n {
+		B, S = S, B
+	}
+	m = (*S).Size()
+	k := (*B).Size() - 3*m
+	fmt.Printf("rearranging initiated, m = %d, k = %d\n", m, k)
+
+	var auxB, auxS, newB, newS *stack
+	var datum any
+
+	localOps := 0
+	// (a) Reverse 2*m+k-1 items from B to auxB
+	for i := 0; i < 2*m+k-1; i++ {
+		datum, *B = (*B).Pop()
+		auxB = auxB.Push(datum)
+		localOps += 2
+	}
+	// (b) Reverse all items on S to auxS
+	for datum, *S = (*S).Pop(); datum != nil; datum, *S = (*S).Pop() {
+		auxS = auxS.Push(datum)
+		localOps += 2
+	}
+	// (c) Reverse auxB on to newB
+	for datum, auxB = auxB.Pop(); datum != nil; datum, auxB = auxB.Pop() {
+		newB = newB.Push(datum)
+		localOps += 2
+	}
+	// (d) Reverse B on to newS
+	for datum, *B = (*B).Pop(); datum != nil; datum, *B = (*B).Pop() {
+		newS = newS.Push(datum)
+		localOps += 2
+	}
+	// (e) Reverse auxS on to newS
+	for datum, auxS = auxS.Pop(); datum != nil; datum, auxS = auxS.Pop() {
+		newS = newS.Push(datum)
+		localOps += 2
+	}
+
+	fmt.Printf("%d local stack operations\n", localOps)
+
+	l.tempStackOps += auxB.Operations() + auxS.Operations() + (*B).Operations() + (*S).Operations()
+
+	*B, *S = newB, newS
 }
 
 func (l *Stack6) initiateTransferCriteria() bool {
@@ -231,4 +354,12 @@ func (l *Stack6) initiateTransferCriteria() bool {
 	// m <= n at this point
 	fmt.Printf("m %d, n %d, 3*m >= n: %v\n", m, n, 3*m >= n)
 	return !(m > 0 && n > 0 && 3*m >= n)
+}
+
+func (l *Stack6) setSmallFunctions() {
+	fmt.Println("set small functions")
+	l.currentPopL = smallPopLeft
+	l.currentPushL = smallPushLeft
+	l.currentPopR = smallPopRight
+	l.currentPushR = smallPushRight
 }
