@@ -241,26 +241,31 @@ func (l *Stack6) transfer() {
 	steps := 0
 	// (a) Reverse 2*m+k-1 items from B to auxB
 	// (b) Reverse all items on S to auxS. S has size m
-	for i := 0; i < 2*m+k-1; i++ {
+	var i int
+	for i = 0; i < m; i++ {
 		auxB = auxB.Push(b.data)
 		b = b.next
 
-		steps++
-
-		if i > m-1 {
-			continue
-		}
-
 		auxS = auxS.Push(s.data)
 		s = s.next
-	}
 
+		steps++
+	}
+	c := 0
+	for ; i < 2*m+k-1; i++ {
+		auxB = auxB.Push(b.data)
+		b = b.next
+		c++
+	}
+	steps += c / 2
+	fmt.Printf("(a), (b) completed, %d steps\n", steps)
 	// size(B) started at 3m+k
 	// size(auxB) is 2m+k-1 here.
 	// size(B) here is (3m+k)-(2m+k-1) = m+1
 	// so auxB is always of greater size than B
 	// size(auxS) is m
 	// size(B) + size(auxS) = m+1+m = 2m+1
+	// if k == 1, size(B) + size(auxS) > size(auxB)
 
 	for auxB.Size() > 0 {
 
