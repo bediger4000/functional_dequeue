@@ -5,6 +5,15 @@ import (
 	"os"
 )
 
+// Implementation of the Dequeue described in Section 3 of "Real-time Deques,
+// Multi-head Turing machines...".  The section is titled "Functional Deques with
+// good amortized performance".
+//
+// Basically a two-stack Dequeue, but when an empty stack gets popped, it reverses
+// half of the other stack's contents on to the empty stack, and pops an element
+// from the now not-empty stack. Halves the number of operations that a simplistic
+// 2-stack dequeue would make when an empty stack gets popped.
+
 type HalfStack struct {
 	opCount int
 	head    *stack
@@ -41,6 +50,7 @@ func (l *HalfStack) PopLeft() (any, Dequeue) {
 	var data any
 	if l.head.Size() == 0 && l.tail.Size() > 0 {
 		n := l.tail.Size() / 2
+		// Linus Torvald's "Good Taste in Programming" technique.
 		indirect := &(l.tail.stk)
 		for i := 0; i < n; i++ {
 			indirect = &(*indirect).next
