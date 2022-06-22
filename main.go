@@ -37,13 +37,9 @@ REPL:
 		var operation, data string
 		n, err := fmt.Scanf("%s %s\n", &operation, &data)
 		if err == io.EOF {
-			// fmt.Println("EOF on read")
 			break
 		}
-		if n != 1 && err != nil {
-			fmt.Printf("Failed to read: %v\n", err)
-			break
-		}
+		// Ignore other errors, they're probably blank lines and comments.
 
 		var returnData any
 
