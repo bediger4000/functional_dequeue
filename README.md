@@ -58,7 +58,24 @@ Not the case -
 Lisp lists are apparently often used this way
 because it's so slow to find the tail of a list.
 [Code](fdq/twostack.go)
-4. Write a `Dequeue` implementation that
+4. Write a `Dequeue` implementation that implements the algorithm of Section 3
+of Chuang and Goldberg.
 [Code](fdq/halfstack.go)
+5. Write a `Dequeue` implementation of Section 5 of Chuang and Goldberg that
+doesn't do all of the algorithm. Section 5 "distributes" the internal stack operations
+over a number of Dequeue operations so that it's O(1).
+[Code](fdq/sixstack.go)
+6. Write a `Dequeue` implementation of Section 5 of Chuang and Goldberg that
+does all of the algorithm. Have it count actual stack operations to see if
+it's O(1) or not, because Section 5 is really hand wavy about how the algorithm
+gets to O(1).
 
 ## Dequeue testing environment
+
+### Build
+
+```sh
+$ go build .
+```
+
+### Run
