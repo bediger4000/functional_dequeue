@@ -6,7 +6,9 @@ import (
 )
 
 // Partial implementation of the functional, real-time (i.e. amortized O(1))
-// double-ended queue of section 5
+// double-ended queue of section 5 of "Real-time Deques, Multi-head Turing
+// machines..." Doesn't do transfers over m dequeue operations, does them all
+// in a single batch. Exists so I can understand section 5 of the paper.
 
 type Stack6 struct {
 	opCount      int
@@ -232,6 +234,7 @@ func (l *Stack6) transfer() {
 	m = (*S).Size()
 	k := (*B).Size() - 3*m
 	fmt.Printf("rearranging initiated, m = %d, k = %d\n", m, k)
+	l.Print(os.Stdout)
 
 	var auxB, auxS, newB, newS *stack
 	var datum any
@@ -241,6 +244,8 @@ func (l *Stack6) transfer() {
 	steps := 0
 	// (a) Reverse 2*m+k-1 items from B to auxB
 	// (b) Reverse all items on S to auxS. S has size m
+	// First reverse m items of B to auxB, all items of S to auxS
+	// Leave *B, *S unchanged, use *stackNode pointers to get at data
 	var i int
 	for i = 0; i < m; i++ {
 		auxB = auxB.Push(b.data)
@@ -251,6 +256,8 @@ func (l *Stack6) transfer() {
 
 		steps++
 	}
+
+	// Second, reverse the rest of 2m+k-1 items of B to auxB
 	c := 0
 	for ; i < 2*m+k-1; i++ {
 		auxB = auxB.Push(b.data)
@@ -258,46 +265,47 @@ func (l *Stack6) transfer() {
 		c++
 	}
 	steps += c / 2
-	fmt.Printf("(a), (b) completed, %d steps\n", steps)
-	// size(B) started at 3m+k
+
 	// size(auxB) is 2m+k-1 here.
 	// size(B) here is (3m+k)-(2m+k-1) = m+1
-	// so auxB is always of greater size than B
 	// size(auxS) is m
-	// size(B) + size(auxS) = m+1+m = 2m+1
-	// if k == 1, size(B) + size(auxS) > size(auxB)
+	// size(B) + size(auxS) = m+1 + m = 2m+1
+	// The problem is that k is either 1, 2, or 3,
+	// so 2m+k-1 can be 2m, 2m+1, 2m+2, so it's not as easy to do
+	// for-loops over section 5's parts (c), (d) and (e)
+	// Also note that (e) has to happen after (d) - you can't really
+	// do them "concurrently", otherwise the stack order gets messed up.
 
-	for auxB.Size() > 0 {
+	for i = 0; i < m+1; i++ {
 
 		// (c) Reverse auxB on to newB
 		datum, auxB = auxB.Pop()
 		newB = newB.Push(datum)
 
 		// (d) Reverse what's left of B on to newS
-		if b != nil {
-			newS = newS.Push(b.data)
-			b = b.next
-		} else if auxS.Size() > 0 {
-			// (e) Reverse auxS on to newS
-			datum, auxS = auxS.Pop()
-			newS = newS.Push(datum)
-		}
+		newS = newS.Push(b.data)
+		b = b.next
 		steps++
 	}
 
-	// if k == 1, there's one element on auxS left
-	if auxS.Size() > 0 {
-		// (e) Reverse last element of auxS on to newS
+	// (c) finish reversing auxB on to newB
+	for ; i < 2*m+k-1; i++ {
+		datum, auxB = auxB.Pop()
+		newB = newB.Push(datum)
+	}
+
+	// (e) reverse auxS on to newS
+	for i = 0; i < m; i++ {
 		datum, auxS = auxS.Pop()
 		newS = newS.Push(datum)
-		steps++
 	}
 
-	fmt.Printf("%d steps, 4*m+6 = %d\n", steps, 4*m+6)
-
+	// not correct: *B, *S start out with some operation count
 	l.tempStackOps += auxB.Operations() + auxS.Operations() + (*B).Operations() + (*S).Operations()
 
 	*B, *S = newB, newS
+
+	l.Print(os.Stdout)
 }
 
 func (l *Stack6) explicittransfer() {
