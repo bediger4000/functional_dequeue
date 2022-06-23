@@ -237,8 +237,10 @@ func (l *Stack6) transfer() {
 	l.Print(os.Stdout)
 
 	var auxB, auxS, newB, newS *stack
-	var datum any
+	var tempNode *stackNode
 
+	// manipulate the *stackNode directly - leave l.head and l.tail
+	// as is, create stackNodes to push on auxB, auxS, newB, etc.
 	b, s := (*B).stk, (*S).stk
 
 	steps := 0
@@ -250,21 +252,20 @@ func (l *Stack6) transfer() {
 	for i = 0; i < m; i++ {
 		auxB = auxB.Push(b.data)
 		b = b.next
+		steps += 2
 
 		auxS = auxS.Push(s.data)
 		s = s.next
+		steps += 2
 
-		steps++
 	}
 
 	// Second, reverse the rest of 2m+k-1 items of B to auxB
-	c := 0
 	for ; i < 2*m+k-1; i++ {
 		auxB = auxB.Push(b.data)
 		b = b.next
-		c++
+		steps += 2
 	}
-	steps += c / 2
 
 	// size(auxB) is 2m+k-1 here.
 	// size(B) here is (3m+k)-(2m+k-1) = m+1
@@ -279,25 +280,28 @@ func (l *Stack6) transfer() {
 	for i = 0; i < m+1; i++ {
 
 		// (c) Reverse auxB on to newB
-		datum, auxB = auxB.Pop()
-		newB = newB.Push(datum)
+		tempNode, auxB = auxB.PopNode()
+		newB = newB.PushNode(tempNode)
+		steps += 2
 
 		// (d) Reverse what's left of B on to newS
 		newS = newS.Push(b.data)
 		b = b.next
-		steps++
+		steps += 2
 	}
 
 	// (c) finish reversing auxB on to newB
 	for ; i < 2*m+k-1; i++ {
-		datum, auxB = auxB.Pop()
-		newB = newB.Push(datum)
+		tempNode, auxB = auxB.PopNode()
+		newB = newB.PushNode(tempNode)
+		steps += 2
 	}
 
 	// (e) reverse auxS on to newS
 	for i = 0; i < m; i++ {
-		datum, auxS = auxS.Pop()
-		newS = newS.Push(datum)
+		tempNode, auxS = auxS.PopNode()
+		newS = newS.PushNode(tempNode)
+		steps += 2
 	}
 
 	// not correct: *B, *S start out with some operation count
@@ -305,9 +309,12 @@ func (l *Stack6) transfer() {
 
 	*B, *S = newB, newS
 
+	fmt.Printf("4m+6 = %d, transfer required %d stack ops, amortized %.2f\n", 4*m+6, steps, float64(steps)/float64(m))
 	l.Print(os.Stdout)
 }
 
+// explicittransfer does all the stack operations "non-concurrently"
+// so that I can see what's going on.
 func (l *Stack6) explicittransfer() {
 	m := l.head.Size()
 	n := l.tail.Size()
