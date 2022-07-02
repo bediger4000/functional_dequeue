@@ -70,6 +70,22 @@ does all of the algorithm. Have it count actual stack operations to see if
 it's O(1) or not, because Section 5 is really hand wavy about how the algorithm
 gets to O(1).
 
+### Handwavy "steps" of Chuang and Goldberg
+
+` number of stack operations: (14m+4k-2)/m
+
+stack ops to amortise over m dequeue ops: 14 + 4k/m - 2/m
+
+If m = 1 and k = 3, 14+12-2 = 24 stack ops per dequeue op
+
+If m is large and k = 1,
+
+Number of stack ops: 14 + 4/m - 2/m = 14 + 6/m
+
+If m is large, 6/m is vanishingly small, the algorithm will take just more than 14
+stack ops per m dequeue ops.
+
+
 ## Dequeue testing environment
 
 ### Build
