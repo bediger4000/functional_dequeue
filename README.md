@@ -85,8 +85,25 @@ Number of stack ops: 14 + 4/m - 2/m = 14 + 6/m
 If m is large, 6/m is vanishingly small, the algorithm will take just more than 14
 stack ops per m dequeue ops.
 
+|left size|right size|m|k|stack ops per dequeue op|
+|:--------|:---------|:---:|:---:|----------------|
+|6|  1|2|3|24.00|
+|2|  7|2|1|15.00|
+|3| 10|3|1|14.67|
+|4| 13|4|1|14.50|
+|5| 16|5|1|14.40|
+|6| 19|6|1|14.33|
+|7| 22|7|1|14.29|
+|8| 25|8|1|14.25|
+|10|31|10|1|14.20|
+|20|61|20|1|14.10|
 
 ## Dequeue testing environment
+
+I wrote a semi-interactive program to create,
+push and pop (left and right),
+print contents of,
+and delete dequeues.
 
 ### Build
 
@@ -95,3 +112,27 @@ $ go build .
 ```
 
 ### Run
+
+```sh
+$ ./functional_dequeue halfstack
+> type
+halfstack
+> pushl 1
+> pushl 2
+> pushl 3
+> pushl 4
+> pushl 5
+> print
+head (5:5): 5 -> 4 -> 3 -> 2 -> 1 -> 
+tail (0:0): 
+Dequeue operations 5, stack operations: 5 => 1.000
+> popr
+pop right: 1
+> print
+head (2:10): 5 -> 4 -> 
+tail (2:4): 2 -> 3 -> 
+Dequeue operations 6, stack operations: 14 => 2.333
+> new
+Available implementations: [dllist halfstack stack6a twostack]
+Choose dequeue implementation:
+```
