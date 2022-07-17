@@ -72,9 +72,57 @@ gets to O(1).
 
 ### Handwavy "steps" of Chuang and Goldberg
 
-` number of stack operations: (14m+4k-2)/m
+---
 
-stack ops to amortise over m dequeue ops: 14 + 4k/m - 2/m
+Note that procedures a and b above
+can be carried out concurrently,
+which takes no more than 2m + 3 steps.
+A step costs two units of time and space by
+moving one element from B to auxB and moving one element from S to auxS.
+Similarly, procedure c can be carried out concurrently with d and e,
+taking a total of at most 2m + 3 steps.
+In total, 4m + 6 steps are sufficient to complete the transfer process.
+Since the transfer process will be distributed evenly over the next m deque operations,
+we allocate 6 steps to the deque operation that violates the invariant,
+and 4 steps to each of the m deque operations that follow.
+
+---
+
+I think this is vague, and it's incorrect.
+
+"A step costs two units of time and space by
+moving one element from B to auxB and moving one element from S to auxS."
+
+`2m+k-1` items get moved from B to auxB during procedure (a).
+`m` items get moved from S to auxS during procedure (b).
+You could pop S and push that on auxS in the same loop
+as popping B and pushing on auxB, but why bother?
+2 pops and 2 pushes in each loop iteration are still 2 pops and 2 pushes.
+Since only m items exist on S,
+you'd have to do more overlapping to get that many pops and pushes done
+in a certain number of "steps".
+
+Also, k can be 1, 2, 3, so saying "at most 2m+3 steps" doesn't make sense.
+If k = 3,  2m + k - 1 = 2m + 2
+
+Counting up the number of pops and pushes makes more sense:
+
+* Procedure (a) - "Pop and reverse the topmost 2m + k - 1 elements of
+stack B into an auxiliary stack auxB". 2m+k-1 pops, 2m+k-1 pushes
+* Procedure (b) - "Reverse stack S into an auxiliary auxS", m pops and pushes
+* Procedure (c) - "Reverse stack auxB into a new stack newB",  2m+k-1 pops, 2m+k-1 pushes
+* Procedure (d) - "Reverse stack B into a new stack newS",
+this is what's left of B after (a). 3m+k - (2m + k - 1) = m + 1 pops, m+1 pushes
+* Procedure (e) - "Reverse stack auxS onto stack newS", m pops, m pushes
+
+Total pops (same number of pushes):  2m + k - 1 + m + 2m + k - 1 + m + 1  + m = 7m + 2k - 1
+
+Total pops and pushes: 14m + 4k - 2
+
+```
+number of stack operations: (14m+4k-2)/m
+
+Stack ops amortised over m dequeue ops: 14 + 4k/m - 2/m
 
 If m = 1 and k = 3, 14+12-2 = 24 stack ops per dequeue op
 
@@ -84,6 +132,7 @@ Number of stack ops: 14 + 4/m - 2/m = 14 + 6/m
 
 If m is large, 6/m is vanishingly small, the algorithm will take just more than 14
 stack ops per m dequeue ops.
+```
 
 |left size|right size|m|k|stack ops per dequeue op|
 |:--------|:---------|:---:|:---:|----------------|
@@ -97,6 +146,8 @@ stack ops per m dequeue ops.
 |8| 25|8|1|14.25|
 |10|31|10|1|14.20|
 |20|61|20|1|14.10|
+|100|301|100|1|14.02|
+|300|901|300|1|14.01|
 
 ## Dequeue testing environment
 
